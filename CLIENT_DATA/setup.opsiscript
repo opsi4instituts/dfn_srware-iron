@@ -1,0 +1,85 @@
+; ----------------------------------------------------------------
+; Copyright (c) uib gmbh (www.uib.de)
+; This sourcecode is owned by uib
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/en/credits/
+; ----------------------------------------------------------------
+
+;****************************************
+; SETUPTYPE      inno
+;****************************************
+; PRODUCTID      srware-iron
+; SETUPFILE      srware_iron.exe
+;****************************************
+; LICENSE        false     
+; PRODUCTDESC    Browser auf Basis von Google-Chrome
+; INSTALLDIR     %ProgramFiles32Dir%\SRWare Iron
+;****************************************
+; TIMESTAMP      02/03/2015 12:53:07
+;****************************************
+
+[Actions]
+requiredWinstVersion >= "4.11.4.4"
+ScriptErrorMessages = false
+
+DefVar $SetupType$
+DefVar $ProductId$ 
+DefVar $Setupfile$ 
+DefVar $InstallDir$
+DefVar $MinimumSpace$
+DefVar $ExitCode$
+DefVar $ErrorMsg$
+DefVar $LogDir$
+DefVar $TmpDir$
+
+Set $LogDir$ = "%opsiLogDir%"
+Set $TmpDir$ = "%opsiTmpDir%"
+
+include_append "%ScriptDrive%\lib\check_inno-exitcode.ins"
+
+; ----------------------------------------------------------------
+Set $SetupType$       = "inno"
+; ----------------------------------------------------------------
+Set $ProductId$       = "srware-iron"
+Set $Setupfile$       = "srware_iron.exe"
+Set $InstallDir$      = "%ProgramFiles32Dir%\SRWare Iron"
+Set $MinimumSpace$    = "261 MB"
+; ----------------------------------------------------------------
+ChangeDirectory "%SCRIPTPATH%"
+
+if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
+        LogError "Not enough space on %SystemDrive%, " + $MinimumSpace$ + " on drive %SystemDrive% needed for " + $ProductId$
+        isFatalError "No Space"
+else
+        comment "Space OK"
+endif
+if not( FileExists($Setupfile$) )
+        LogError "Setupfile NOT exists (" + $Setupfile$ +")"
+        isFatalError "No Setupfile!"
+else
+        comment "Setupfile exists ..."
+endif 
+
+   comment "Show product picture"
+   ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $ProductId$
+
+   if FileExists("%ScriptPath%\delsub.opsiscript")
+      comment "Start uninstall sub section"
+      Sub "%ScriptPath%\delsub.opsiscript"
+   endif
+   
+   Message "Installing " + $ProductId$ + " ..."
+
+   comment "Start setup program"
+   ;----------------------------------------------
+   Winbatch_install_inno
+   Sub_check_exitcode	
+
+; ----------------------------------------------------------------
+; install section
+; ----------------------------------------------------------------
+[Winbatch_install_inno]
+; http://unattended.sourceforge.net/InnoSetup_Switches_ExitCodes.html
+; You may create setup answer file by: setup.exe /SAVEINF="filename"
+; You may use an answer file by the parameter /LOADINF="filename"
+"%ScriptPath%\$Setupfile$" /sp- /silent /norestart /nocancel /SUPPRESSMSGBOXES

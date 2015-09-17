@@ -1,0 +1,48 @@
+[Package]
+version: 006
+depends: 
+incremental: False
+
+[Product]
+type: localboot
+id: dfn_srware-iron
+name: Browser Iron
+description: sicherer Browser auf Basis von Google-Chrome (ohne Google-Analytics etc.)
+advice: (Krummel: aktualisiert am 12.08.2015)
+version: 44.2350.0
+priority: 0
+licenseRequired: False
+productClasses: 
+setupScript: setup.opsiscript
+uninstallScript: uninstall.opsiscript
+updateScript: 
+alwaysScript: 
+onceScript: 
+customScript: 
+userLoginScript: 
+
+[Changelog]
+srware-iron (44.2350.0.0-006) stable; urgency=low
+
+	* Update
+
+-- Detlef Krummel <krummel@gei.de>  12/08/2015 08:00:00
+srware-iron (40.2150.0-1) stable; urgency=low
+
+	* initial: created by opsi-setup-detector
+
+-- opsisetupdetector.exe <info@uib.de>  02/03/2015 12:53:07
+
+
+
+
+
+
+
+
+
+
+
+
+
+
