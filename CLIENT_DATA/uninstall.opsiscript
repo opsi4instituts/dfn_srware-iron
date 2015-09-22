@@ -4,35 +4,15 @@
 ; credits: http://www.opsi.org/en/credits/
 
 [Actions]
-requiredWinstVersion >= "4.11.4.4"
-
-DefVar $SetupType$
-DefVar $LogDir$
-DefVar $ExitCode$
-DefVar $ErrorMsg$
-DefVar $ProductId$
-DefVar $InstallDir$
-
-Set $LogDir$ = "%opsiLogDir%"
-
-; ----------------------------------------------------------------
-Set $SetupType$ = "inno"
-; ----------------------------------------------------------------
-
-; ----------------------------------------------------------------
-; - Please check the following values                             -
-; ----------------------------------------------------------------
-Set $ProductId$       = "srware-iron"
-Set $InstallDir$      = "%ProgramFiles32Dir%\SRWare Iron"
-; ----------------------------------------------------------------
-
+; common Values for (un)installation
+include_insert "common.opsiinc"
 
 comment "Show product picture"
-ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $ProductId$
+ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $PrettyName$
 
-Message "Uninstalling " + $ProductId$ + " ..."
+Message "Uninstalling " + $PrettyName$ + " ..."
 
 if FileExists("%ScriptPath%\delsub.opsiscript")
-   comment "Start uninstall sub section"
-   Sub "%ScriptPath%\delsub.opsiscript"
+	comment "Start uninstall sub section"
+	Sub "%ScriptPath%\delsub.opsiscript"
 endif

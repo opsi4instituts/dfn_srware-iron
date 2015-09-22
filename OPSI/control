@@ -1,5 +1,5 @@
 [Package]
-version: 006
+version: 007
 depends: 
 incremental: False
 
@@ -7,7 +7,7 @@ incremental: False
 type: localboot
 id: dfn_srware-iron
 name: Browser Iron
-description: sicherer Browser auf Basis von Google-Chrome (ohne Google-Analytics etc.)
+description: Webbrowser auf Basis von Chromium (OS-Teil von Google Chrome) ohne datenschutzrechtlich kritischer Funktionen
 advice: (Krummel: aktualisiert am 12.08.2015)
 version: 44.2350.0
 priority: 0
@@ -21,7 +21,51 @@ onceScript:
 customScript: 
 userLoginScript: 
 
+[ProductProperty]
+type: unicode
+name: install_architecture
+multivalue: False
+editable: False
+description: Betriebssystem-Architektur 32/64 Bit
+values: ["32 only", "64 only", "both", "system specific"]
+default: ["system specific"]
+
+[ProductProperty]
+type: unicode
+name: desktopicon
+multivalue: False
+editable: False
+description: Icon on Desktop
+values: ["no", "yes"]
+default: ["no"]
+
+[ProductProperty]
+type: unicode
+name: custom-post-install
+multivalue: False
+editable: False
+description: Define filename for include script in custom directory after installation
+values: ["none", "post-install.opsiinc"]
+default: ["none"]
+
+[ProductProperty]
+type: unicode
+name: custom-post-deinstall
+multivalue: False
+editable: False
+description: Define filename for include script in custom directory after deinstallation
+values: ["none", "post-deinstall.opsiinc"]
+default: ["none"]
+
 [Changelog]
+dfn_srware-iron (44.2350.0-007)
+	* "custom verzeichnis" hinzugefügt (ProductProperties, preinst, postinst)
+	* "install_architecture" hinzugefügt (ProductProperty), sowie 64-Bit-Installer
+	* ProductProperty "desktop icon" hinzugefügt (Installer legen defaultmäßig keine mehr an)
+	* Umbau Paket (Registryabfragen, Uninstallsuche, common.opsiinc, ...)
+-- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 17.09.2015
+
+
 srware-iron (44.2350.0.0-006) stable; urgency=low
 
 	* Update
@@ -32,6 +76,22 @@ srware-iron (40.2150.0-1) stable; urgency=low
 	* initial: created by opsi-setup-detector
 
 -- opsisetupdetector.exe <info@uib.de>  02/03/2015 12:53:07
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
