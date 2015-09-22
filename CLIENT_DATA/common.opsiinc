@@ -1,0 +1,53 @@
+requiredWinstVersion >= "4.11.4.4"
+
+DefVar $UninstallProgram$
+DefVar $LogDir$
+DefVar $ProductId$
+DefVar $ProductName$
+DefVar $PrettyName$
+DefVar $MinimumSpace$
+DefVar $InstallDir$
+DefVar $InstallDirExe$
+DefVar $SetupFile32$
+DefVar $SetupIniFile32$
+DefVar $SetupFile64$
+DefVar $SetupIniFile64$
+DefVar $Exe$
+DefVar $ExitCode$
+DefVar $MSVersion$
+DefVar $RegPathUninstall$
+DefVar $RegId$
+DefVar $INST_architecture$
+DefVar $INST_SystemType$
+DefVar $CustomPostInstall$
+DefVar $CustomPostDeinstall$
+DefVar $DesktopIcon$
+DefVar $SearchPattern$
+DefStringList $ResultList$
+
+Set $INST_SystemType$   = GetSystemType
+Set $INST_architecture$ = GetProductProperty("install_architecture","system specific")
+Set $MSVersion$	    	= GetMsVersionInfo
+Set $LogDir$ = "%opsiLogDir%"
+
+; ---------------------------------------------------------------
+; - Please edit the following values                             -
+; ----------------------------------------------------------------
+Set $ProductId$		= "srware-iron"
+Set $PrettyName$	= "SRWare Iron"
+Set $MinimumSpace$	= "360 MB"
+Set $SetupFile32$	= "srware_iron.exe"
+Set $SetupFile64$	= "srware_iron64.exe"
+Set $SetupIniFile32$ 	= "srware32.ini"
+Set $SetupIniFile64$ 	= "srware64.ini"
+Set $Exe$ 		= "iron.exe"
+Set $RegPathUninstall$	= "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+; ----------------------------------------------------------------
+
+include_append "section_sub_check_exitcode.opsiinc"
+include_append "section_sub_search_registry32_uninstall_keys.opsiinc"
+include_append "section_sub_search_registry64_uninstall_keys.opsiinc"
+
+if not ($MSVersion$ = "6.1")
+	Logwarning "Only tested with windows 7! Please report to the maintainer of the opsi packet successful installation on other windows versions."
+endif
