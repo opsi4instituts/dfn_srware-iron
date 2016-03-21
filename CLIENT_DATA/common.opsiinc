@@ -12,6 +12,7 @@ DefVar $SetupFile32$
 DefVar $SetupIniFile32$
 DefVar $SetupFile64$
 DefVar $SetupIniFile64$
+DefVar $SetupSilent$
 DefVar $Exe$
 DefVar $ExitCode$
 DefVar $MSVersion$
@@ -40,6 +41,7 @@ Set $SetupFile32$	= "srware_iron.exe"
 Set $SetupFile64$	= "srware_iron64.exe"
 Set $SetupIniFile32$ 	= "srware32.ini"
 Set $SetupIniFile64$ 	= "srware64.ini"
+Set $SetupSilent$	= " /Components=Iron /verysilent /norestart /nocancel /SUPPRESSMSGBOXES"
 Set $Exe$ 		= "iron.exe"
 Set $RegPathUninstall$	= "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
 ; ----------------------------------------------------------------

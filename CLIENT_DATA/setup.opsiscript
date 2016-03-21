@@ -118,13 +118,13 @@ endif
 ; http://unattended.sourceforge.net/InnoSetup_Switches_ExitCodes.html
 ; You may create setup answer file by: setup.exe /SAVEINF="filename"
 ; You may use an answer file by the parameter /LOADINF="filename"
-"%ScriptPath%\$Setupfile32$" /LOADINF="%ScriptPath%\$SetupIniFile32$" /verysilent /norestart /nocancel /SUPPRESSMSGBOXES
+"%ScriptPath%\$Setupfile32$" /LOADINF="%ScriptPath%\$SetupIniFile32$" $SetupSilent$ 
 
 [Winbatch_install_64]
 ; http://unattended.sourceforge.net/InnoSetup_Switches_ExitCodes.html
 ; You may create setup answer file by: setup.exe /SAVEINF="filename"
 ; You may use an answer file by the parameter /LOADINF="filename"
-"%ScriptPath%\$Setupfile64$" /LOADINF="%ScriptPath%\$SetupIniFile64$" /verysilent /norestart /nocancel /SUPPRESSMSGBOXES
+"%ScriptPath%\$Setupfile64$" /LOADINF="%ScriptPath%\$SetupIniFile64$" $SetupSilent$
 
 [Linkfolder_install_desktopicon]
 set_basefolder common_desktopdirectory
