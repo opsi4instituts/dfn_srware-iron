@@ -1,5 +1,5 @@
 [Package]
-version: 007
+version: 1
 depends: 
 incremental: False
 
@@ -8,8 +8,8 @@ type: localboot
 id: dfn_srware-iron
 name: Browser Iron
 description: Webbrowser auf Basis von Chromium (OS-Teil von Google Chrome) ohne datenschutzrechtlich kritischer Funktionen
-advice: (Krummel: aktualisiert am 12.08.2015)
-version: 44.2350.0
+advice: 
+version: 58.0.3050.0
 priority: 0
 licenseRequired: False
 productClasses: 
@@ -57,52 +57,116 @@ description: Define filename for include script in custom directory after deinst
 values: ["none", "post-deinstall.opsiinc"]
 default: ["none"]
 
+[ProductProperty]
+type: unicode
+name: extensions-force-list
+multivalue: True
+editable: True
+description: Force installation of extensions system wide from store (more informations: https://opsi.wzb.eu/wiki/index.php/Dfn_srware-iron)
+values: ["none", "uBlock Origin|cjpalhdlnbpafiamejdnhcphjbkeiagm;https://clients2.google.com/service/update2/crx"]
+default: ["none"]
+
+[ProductProperty]
+type: unicode
+name: default-search-provider
+multivalue: False
+editable: True
+description: Force default search provider like <shortname>|<longname>|<url with {searchTerms}> (more informations: https://opsi.wzb.eu/wiki/index.php/Dfn_srware-iron)
+values: ["none", "startpage|Startpage HTTPS - Deutsch|https://startpage.com/do/dsearch?query={searchTerms}&language=deutsch"]
+default: ["none"]
+
+[ProductProperty]
+type: unicode
+name: user-data-dir
+multivalue: False
+editable: False
+description: Save user profile to %AppData% instead of %LocalAppData%
+values: ["no", "yes"]
+default: ["no"]
+
+[ProductProperty]
+type: unicode
+name: kill-process
+multivalue: True
+editable: True
+description: Kill list of processes before installation
+values: ["", "chrome.exe", "firefox.exe", "iexplore.exe"]
+default: [""]
+
+[ProductProperty]
+type: unicode
+name: disable-bing
+multivalue: False
+editable: False
+description: Disable irritating Bing-Search-Field on new tab window
+values: ["no", "yes"]
+default: ["no"]
+
+[ProductProperty]
+type: unicode
+name: default-browser
+multivalue: False
+editable: False
+description: Should iron be the defaultbrowser system wide? With "user" there will be a hint and the user can decide himself.
+values: ["no", "user", "yes"]
+default: ["user"]
+
 [Changelog]
+dfn_srware-iron (58.0.3050.0-1)
+	* Neue Upstreamversion
+	* Übernahme Features aus testing-Paket 57.0.3000.0-2 und 57.0.3000.0-3
+	* ProductProperty kill-process instead of kill-iexplore
+	* ProductProperty disable-bing
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 04.05.2017
+
+dfn_srware-iron (57.0.3000.0-3)
+	* Property DefaultSearchProvider
+	* Property KillIexplore
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 03.04.2017
+
+dfn_srware-iron (57.0.3000.0-2)
+	* Extensions automatisch für jeden User installieren (Property)
+	* UserDataDir in %AppData% anstatt %LocalAppData% (Property)
+	* Defaultbrowser (Property)
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 30.03.2017
+
+dfn_srware-iron (57.0.3000.0-1)
+	* Neue Upstreamversion
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 28.03.2017
+
+dfn_srware-iron (56.0.2950.1-014)
+
+	* major Update
+
+-- Detlef Krummel <krummel@gei.de>  27/02/2017
+
+dfn_srware-iron (56.0.2950.0-013)
+	* major Update
+-- Detlef Krummel <krummel@gei.de>  10/02/2017
+dfn_srware-iron (54.0.2850.0-012)
+	* major Update
+-- Detlef Krummel <krummel@gei.de>  11/11/2016
+dfn_srware-iron (53.0.2800.0-011)
+	* major Update
+-- Detlef Krummel <krummel@gei.de>  25/09/2016
+dfn_srware-iron (52.0.2700.0-010)
+	* major Update
+-- Detlef Krummel <krummel@gei.de>  09/06/2016
+dfn_srware-iron (51.0.2700.0-009)
+	* major Update
+-- Detlef Krummel <krummel@gei.de>  09/06/2016
+dfn_srware-iron (50.0.2650.0-008)
+	* major Update
+-- Detlef Krummel <krummel@gei.de>  12/08/2015 08:00:00
 dfn_srware-iron (44.2350.0-007)
 	* "custom verzeichnis" hinzugefügt (ProductProperties, preinst, postinst)
 	* "install_architecture" hinzugefügt (ProductProperty), sowie 64-Bit-Installer
 	* ProductProperty "desktop icon" hinzugefügt (Installer legen defaultmäßig keine mehr an)
 	* Umbau Paket (Registryabfragen, Uninstallsuche, common.opsiinc, ...)
--- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 17.09.2015
-
-
+-- Detlef Krummel <krummel@gei.de>  12/08/2015 08:00:00
 srware-iron (44.2350.0.0-006) stable; urgency=low
-
 	* Update
-
 -- Detlef Krummel <krummel@gei.de>  12/08/2015 08:00:00
 srware-iron (40.2150.0-1) stable; urgency=low
-
 	* initial: created by opsi-setup-detector
-
 -- opsisetupdetector.exe <info@uib.de>  02/03/2015 12:53:07
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

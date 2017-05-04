@@ -12,11 +12,14 @@ DefVar $SetupFile32$
 DefVar $SetupIniFile32$
 DefVar $SetupFile64$
 DefVar $SetupIniFile64$
+DefVar $SetupSilent$
 DefVar $Exe$
 DefVar $ExitCode$
 DefVar $MSVersion$
 DefVar $RegPathUninstall$
+DefVar $RegPathPolicy$
 DefVar $RegId$
+DefVar $RegVal$
 DefVar $INST_architecture$
 DefVar $INST_SystemType$
 DefVar $CustomPostInstall$
@@ -24,11 +27,30 @@ DefVar $CustomPostDeinstall$
 DefVar $DesktopIcon$
 DefVar $SearchPattern$
 DefStringList $ResultList$
+DefVar $UserDataDir$
+DefVar $DefaultBrowser$
+DefStringList $ExtForceList$
+DefVar $Counter$
+DefVar $ExtName$
+DefVar $DefaultSearchProvider$
+DefVar $DSPShortName$
+DefVar $DSPLongName$
+DefVar $DSPUrl$
+DefStringList $KillProcList$
+DefVar $DisableBing$
 
 Set $INST_SystemType$   = GetSystemType
 Set $INST_architecture$ = GetProductProperty("install_architecture","system specific")
 Set $MSVersion$	    	= GetMsVersionInfo
 Set $LogDir$ = "%opsiLogDir%"
+
+set $DesktopIcon$ = getProductProperty("desktopicon","no")
+set $UserDataDir$ = getProductProperty("user-data-dir", "no")
+set $DefaultBrowser$ = getProductProperty("default-browser", "user")
+Set $ExtForceList$ = GetProductPropertyList ("extensions-force-list","")
+Set $DefaultSearchProvider$ = GetProductProperty ("default-search-provider","none")
+Set $KillProcList$ = GetProductPropertyList ("kill-process","")
+Set $DisableBing$ = GetProductProperty ("disable-bing", "no")
 
 ; ---------------------------------------------------------------
 ; - Please edit the following values                             -
@@ -40,14 +62,16 @@ Set $SetupFile32$	= "srware_iron.exe"
 Set $SetupFile64$	= "srware_iron64.exe"
 Set $SetupIniFile32$ 	= "srware32.ini"
 Set $SetupIniFile64$ 	= "srware64.ini"
+Set $SetupSilent$	= " /Components=Iron /verysilent /norestart /nocancel /SUPPRESSMSGBOXES"
 Set $Exe$ 		= "iron.exe"
 Set $RegPathUninstall$	= "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+Set $RegPathPolicy$	= "HKLM\SOFTWARE\Policies\Chromium"
 ; ----------------------------------------------------------------
 
 include_append "section_sub_check_exitcode.opsiinc"
 include_append "section_sub_search_registry32_uninstall_keys.opsiinc"
 include_append "section_sub_search_registry64_uninstall_keys.opsiinc"
 
-if not ($MSVersion$ = "6.1")
-	Logwarning "Only tested with windows 7! Please report to the maintainer of the opsi packet successful installation on other windows versions."
+if not ($MSVersion$ = "6.1" OR $MSVersion$ = "10.0")
+	Logwarning "Only tested with windows 7 and 10! Please report to the maintainer successful installation on other windows versions."		
 endif

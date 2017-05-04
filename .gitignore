@@ -3,5 +3,6 @@
 *.exe
 *.md5
 *.zsync
+*.pak
 custom
 orig

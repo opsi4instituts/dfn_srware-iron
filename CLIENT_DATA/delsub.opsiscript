@@ -46,7 +46,6 @@ endif
 Winbatch_uninstall
 sub_check_exitcode
 			
-set $DesktopIcon$ = getProductProperty("desktopicon","no")
 if $DesktopIcon$ = "yes"
 	comment "Delete common desktop icon"
 	Linkfolder_uninstall_desktopicon	
@@ -59,6 +58,10 @@ if not ($CustomPostDeinstall$ = "none")
 		include_insert "%ScriptPath%\custom\" + $CustomPostDeinstall$
 	endif
 endif
+
+;if ($UserDataDir$ = "yes")
+	Registry_uninstall_policies
+;endif
 
 [Sub_uninstall_32]
 Set $UninstallProgram$ = GetRegistryStringValue32("[" + $RegPathUninstall$ + "\%s%] UninstallString")
@@ -73,7 +76,6 @@ endif
 Winbatch_uninstall
 sub_check_exitcode
 			
-set $DesktopIcon$ = getProductProperty("desktopicon","no")
 if $DesktopIcon$ = "yes"
 	comment "Delete common desktop icon"
 	Linkfolder_uninstall_desktopicon	
@@ -97,3 +99,6 @@ delete_element $ProductName$
 
 [Files_uninstall]
 del -sf "$InstallDir$\"
+
+[Registry_uninstall_policies]
+deletekey [HKLM\SOFTWARE\Policies\Chromium]
