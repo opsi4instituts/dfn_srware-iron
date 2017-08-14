@@ -4,15 +4,13 @@ DefVar $UninstallProgram$
 DefVar $LogDir$
 DefVar $ProductId$
 DefVar $ProductName$
-DefVar $PrettyName$
 DefVar $MinimumSpace$
 DefVar $InstallDir$
-DefVar $InstallDirExe$
+DefVar $PathToExe$
 DefVar $SetupFile32$
 DefVar $SetupIniFile32$
 DefVar $SetupFile64$
 DefVar $SetupIniFile64$
-DefVar $SetupSilent$
 DefVar $Exe$
 DefVar $ExitCode$
 DefVar $MSVersion$
@@ -24,7 +22,8 @@ DefVar $INST_architecture$
 DefVar $INST_SystemType$
 DefVar $CustomPostInstall$
 DefVar $CustomPostDeinstall$
-DefVar $DesktopIcon$
+DefVar $DesktopLink$
+DefVar $SilentOption$
 DefVar $SearchPattern$
 DefStringList $ResultList$
 DefVar $UserDataDir$
@@ -44,25 +43,25 @@ Set $INST_architecture$ = GetProductProperty("install_architecture","system spec
 Set $MSVersion$	    	= GetMsVersionInfo
 Set $LogDir$ = "%opsiLogDir%"
 
-set $DesktopIcon$ = getProductProperty("desktopicon","no")
+set $DesktopLink$ = getProductProperty("desktop-link","false")
 set $UserDataDir$ = getProductProperty("user-data-dir", "no")
 set $DefaultBrowser$ = getProductProperty("default-browser", "user")
 Set $ExtForceList$ = GetProductPropertyList ("extensions-force-list","")
 Set $DefaultSearchProvider$ = GetProductProperty ("default-search-provider","none")
 Set $KillProcList$ = GetProductPropertyList ("kill-process","")
 Set $DisableBing$ = GetProductProperty ("disable-bing", "no")
+Set $SilentOption$ = getProductProperty("silent-option", "/silent")
 
 ; ---------------------------------------------------------------
 ; - Please edit the following values                             -
 ; ----------------------------------------------------------------
 Set $ProductId$		= "srware-iron"
-Set $PrettyName$	= "SRWare Iron"
+Set $ProductName$	= "SRWare Iron"
 Set $MinimumSpace$	= "360 MB"
 Set $SetupFile32$	= "srware_iron.exe"
 Set $SetupFile64$	= "srware_iron64.exe"
 Set $SetupIniFile32$ 	= "srware32.ini"
 Set $SetupIniFile64$ 	= "srware64.ini"
-Set $SetupSilent$	= " /Components=Iron /verysilent /norestart /nocancel /SUPPRESSMSGBOXES"
 Set $Exe$ 		= "iron.exe"
 Set $RegPathUninstall$	= "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
 Set $RegPathPolicy$	= "HKLM\SOFTWARE\Policies\Chromium"
@@ -74,4 +73,13 @@ include_append "section_sub_search_registry64_uninstall_keys.opsiinc"
 
 if not ($MSVersion$ = "6.1" OR $MSVersion$ = "10.0")
 	Logwarning "Only tested with windows 7 and 10! Please report to the maintainer successful installation on other windows versions."		
+endif
+
+comment "Show product picture"
+if (FileExists("%ScriptPath%\..\lib\icons\%installingProdName%.png"))
+       comment "logo at local library/icons found."
+       ShowBitmap "%ScriptPath%\..\lib\icons\%installingProdName%.png" $ProductName$
+else
+       comment "no logo at local library/icons, use from ScriptPath ..."
+       ShowBitmap "%ScriptPath%\o4i.png" $ProductName$
 endif

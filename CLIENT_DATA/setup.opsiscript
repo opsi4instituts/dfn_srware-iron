@@ -1,10 +1,3 @@
-; ----------------------------------------------------------------
-; Copyright (c) uib gmbh (www.uib.de)
-; This sourcecode is owned by uib
-; and published under the Terms of the General Public License.
-; credits: http://www.opsi.org/en/credits/
-; ----------------------------------------------------------------
-
 [Actions]
 ; common Values for (un)installation
 include_insert "common.opsiinc"
@@ -25,109 +18,90 @@ else
         comment "Setupfile OK (exists)"
 endif
 
-Message "Installing " + $PrettyName$ + " ..."
-comment "Show product picture"
-ShowBitmap "%ScriptPath%\o4i.png"  $PrettyName$
+if FileExists("%ScriptPath%\delsub.opsiscript")
+	comment "Start uninstall sub section"
+   	Sub "%ScriptPath%\delsub.opsiscript"
+endif
 
-   	if FileExists("%ScriptPath%\delsub.opsiscript")
-   		comment "Start uninstall sub section"
-   		Sub "%ScriptPath%\delsub.opsiscript"
-   	endif
+for %p% in $KillProcList$ do Sub_kill-process
 
-	for %p% in $KillProcList$ do Sub_kill-process
+if ($INST_SystemType$ = "64 Bit System") and (($INST_architecture$ = "system specific") or ($INST_architecture$ = "both") or ($INST_architecture$ = "64 only"))
+	Message "Installing " + $ProductName$ + " 64 Bit..."
+	comment "Start setup program"
+	Winbatch_install_64
+	Sub_check_exitcode
 
-	if ($INST_SystemType$ = "64 Bit System") and (($INST_architecture$ = "system specific") or ($INST_architecture$ = "both") or ($INST_architecture$ = "64 only"))
-		Message "Installing " + $PrettyName$ + " 64 Bit..."
-		comment "Start setup program"
-		Winbatch_install_64
-		Sub_check_exitcode
-		killtask "firefox64.exe"
-		killtask "chrome.exe"
+	comment "Test for installation success"
+	Set $SearchPattern$ = $ProductName$
+	; Parameter: $SearchPattern$ Suchbegriff in Registry
+	Sub_search_registry64_uninstall_keys
+	; Rückgabewert: $ResultList$ gefundene Einträge
 
-		comment "Test for installation success"
-		Set $SearchPattern$ = $PrettyName$
-		; Parameter: $SearchPattern$ Suchbegriff in Registry
-		Sub_search_registry64_uninstall_keys
-		; Rückgabewert: $ResultList$ gefundene Einträge
-
-		Switch count ($ResultList$)
-			Case "0"
-				logError "Fatal: After Installation " + $PrettyName$ + " could not be found in " + $RegPathUninstall$
-				isFatalError
-			EndCase
-			Case "1"
-				Set $RegId$ = takeSTring(0, $ResultList$)
-				comment "Get 'InstallLocation' from registry for path to exe"
-				Set $InstallDir$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] InstallLocation")
-				Set $InstallDirExe$ = $InstallDir$ + "\" + $Exe$
-				if ($INST_architecture$ = "both")
-					Set $ProductName$ = $PrettyName$ + " (64 bit)"			
-				else
-					Set $ProductName$ = $PrettyName$
-				endif
+	Switch count ($ResultList$)
+		Case "0"
+			logError "Fatal: After Installation " + $ProductName$ + " could not be found in " + $RegPathUninstall$
+			isFatalError
+		EndCase
+		Case "1"
+			Set $RegId$ = takeSTring(0, $ResultList$)
+			comment "Get 'InstallLocation' from registry for path to exe"
+			Set $InstallDir$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] InstallLocation")
+			Set $PathToExe$ = $InstallDir$ + "\" + $Exe$
 	
-				set $DesktopIcon$ = getProductProperty("desktopicon","no")
-				if $DesktopIcon$ = "yes"
-					comment "Create common desktop icon"
-					Linkfolder_install_desktopicon	
-				endif
+			if $DesktopLink$ = "true"
+				comment "Create common desktop link"
+				Linkfolder_create_desktoplink
+			endif
 
-				comment "include custom post install file"
-				set $CustomPostInstall$ = getProductProperty("custom-post-install","none")
-				if not ($CustomPostInstall$ = "none")
-					if FileExists("%ScriptPath%\custom\" + $CustomPostInstall$)
-						include_insert "%ScriptPath%\custom\" + $CustomPostInstall$
-					endif
+			comment "include custom post install file"
+			set $CustomPostInstall$ = getProductProperty("custom-post-install","none")
+			if not ($CustomPostInstall$ = "none")
+				if FileExists("%ScriptPath%\custom\" + $CustomPostInstall$)
+					include_insert "%ScriptPath%\custom\" + $CustomPostInstall$
 				endif
-			EndCase
-		EndSwitch
-	endif
+			endif
+		EndCase
+	EndSwitch
+endif
 	
-	if ($INST_SystemType$ = "32 Bit System") or (($INST_architecture$ = "both") or ($INST_architecture$ = "32 only"))
-		Message "Installing " + $PrettyName$ + " 32 Bit..."
-		comment "Start setup program"
-		Winbatch_install_32
-		Sub_check_exitcode
-		killtask "firefox.exe"
-		killtask "chrome.exe"
+if ($INST_SystemType$ = "32 Bit System") or (($INST_architecture$ = "both") or ($INST_architecture$ = "32 only"))
+	Message "Installing " + $ProductName$ + " 32 Bit..."
+	comment "Start setup program"
+	Winbatch_install_32
+	Sub_check_exitcode
 
-		comment "Test for installation success"
-		Set $SearchPattern$ = $PrettyName$
-		; Parameter: $SearchPattern$ Suchbegriff in Registry
-		Sub_search_registry32_uninstall_keys
-		; Rückgabewert: $ResultList$ gefundene Einträge
+	comment "Test for installation success"
+	Set $SearchPattern$ = $ProductName$
+	; Parameter: $SearchPattern$ Suchbegriff in Registry
+	Sub_search_registry32_uninstall_keys
+	; Rückgabewert: $ResultList$ gefundene Einträge
 
-		Switch count ($ResultList$)
-			Case "0"
-				logError "Fatal: After Installation " + $PrettyName$ + " could not be found in " + $RegPathUninstall$
-				isFatalError
-			EndCase
-			Case "1"
-				Set $RegId$ = takeSTring(0, $ResultList$)
-				comment "Get 'InstallLocation' from registry for path to exe"
-				Set $InstallDir$ = GetRegistryStringValue32("[" + $RegPathUninstall$ + "\" + $RegId$ + "] InstallLocation")
-				Set $InstallDirExe$ = $InstallDir$ + "\" + $Exe$
-				if ($INST_architecture$ = "both")
-					Set $ProductName$ = $PrettyName$ + " (32 bit)"
-				else
-					Set $ProductName$ = $PrettyName$
-				endif			
+	Switch count ($ResultList$)
+		Case "0"
+			logError "Fatal: After Installation " + $ProductName$ + " could not be found in " + $RegPathUninstall$
+			isFatalError
+		EndCase
+		Case "1"
+			Set $RegId$ = takeSTring(0, $ResultList$)
+			comment "Get 'InstallLocation' from registry for path to exe"
+			Set $InstallDir$ = GetRegistryStringValue32("[" + $RegPathUninstall$ + "\" + $RegId$ + "] InstallLocation")
+			Set $PathToExe$ = $InstallDir$ + "\" + $Exe$
 	
-				if $DesktopIcon$ = "yes"
-					comment "Create common desktop icon"
-					Linkfolder_install_desktopicon	
-				endif
+			if $DesktopLink$ = "true"
+				comment "Create common desktop link"
+				Linkfolder_create_desktoplink	
+			endif
 				
-				comment "include custom post install file"
-				set $CustomPostInstall$ = getProductProperty("custom-post-install","none")
-				if not ($CustomPostInstall$ = "none")
-					if FileExists("%ScriptPath%\custom\" + $CustomPostInstall$)
-						include_insert "%ScriptPath%\custom\" + $CustomPostInstall$
-					endif
+			comment "include custom post install file"
+			set $CustomPostInstall$ = getProductProperty("custom-post-install","none")
+			if not ($CustomPostInstall$ = "none")
+				if FileExists("%ScriptPath%\custom\" + $CustomPostInstall$)
+					include_insert "%ScriptPath%\custom\" + $CustomPostInstall$
 				endif
-			EndCase
-		EndSwitch
-	endif
+			endif
+		EndCase
+	EndSwitch
+endif
 	
 if ($UserDataDir$ = "yes")
 	Registry_install_user-data-dir
@@ -183,13 +157,13 @@ endif
 ; http://unattended.sourceforge.net/InnoSetup_Switches_ExitCodes.html
 ; You may create setup answer file by: setup.exe /SAVEINF="filename"
 ; You may use an answer file by the parameter /LOADINF="filename"
-"%ScriptPath%\$Setupfile32$" /LOADINF="%ScriptPath%\$SetupIniFile32$" $SetupSilent$ 
+"%ScriptPath%\$Setupfile32$" /LOADINF="%ScriptPath%\$SetupIniFile32$" $SilentOption$ /norestart /nocancel /SUPPRESSMSGBOXES
 
 [Winbatch_install_64]
 ; http://unattended.sourceforge.net/InnoSetup_Switches_ExitCodes.html
 ; You may create setup answer file by: setup.exe /SAVEINF="filename"
 ; You may use an answer file by the parameter /LOADINF="filename"
-"%ScriptPath%\$Setupfile64$" /LOADINF="%ScriptPath%\$SetupIniFile64$" $SetupSilent$
+"%ScriptPath%\$Setupfile64$" /LOADINF="%ScriptPath%\$SetupIniFile64$" $SilentOption$ /norestart /nocancel /SUPPRESSMSGBOXES
 
 [Registry_install_user-data-dir]
 openkey [$RegPathPolicy$]
@@ -215,11 +189,11 @@ set "DefaultSearchProviderSearchURL" = REG_SZ:"$DSPUrl$"
 [Files_install_resources]
 Copy "%ScriptPath%\resources.pak" $InstallDir$
 
-[Linkfolder_install_desktopicon]
+[Linkfolder_create_desktoplink]
 set_basefolder common_desktopdirectory
 set_subfolder ""
 
 set_link
  	name: $ProductName$
- 	target: $InstallDirExe$
+ 	target: $PathToExe$
 end_link

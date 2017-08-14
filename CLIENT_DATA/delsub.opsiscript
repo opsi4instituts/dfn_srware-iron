@@ -1,13 +1,8 @@
-; Copyright (c) uib gmbh (www.uib.de)
-; This sourcecode is owned by uib gmbh
-; and published under the Terms of the General Public License.
-; credits: http://www.opsi.org/en/credits/
-
 ; Suche macht nur auf 64-Bit-System Sinn
 if ($INST_SystemType$ = "64 Bit System") and (($INST_architecture$ = "system specific") or ($INST_architecture$ = "both") or ($INST_architecture$ = "64 only"))
 
-	Message "Searching installation of " + $PrettyName$ + " 64 Bit..."
-	Set $SearchPattern$ = $PrettyName$
+	Message "Searching installation of " + $ProductName$ + " 64 Bit..."
+	Set $SearchPattern$ = $ProductName$
 	; Parameter: $SearchPattern$ Suchbegriff in Registry
 	Sub_search_registry64_uninstall_keys
 	; Rückgabewert: $ResultList$ gefundene Einträge
@@ -15,13 +10,13 @@ if ($INST_SystemType$ = "64 Bit System") and (($INST_architecture$ = "system spe
 	if ( count ($ResultList$) = "0" )
 		comment "No installations of " + $SearchPattern$ + " found in registry. Nothing to do ;-) "
 	else
-		Message "Uninstalling " + $PrettyName$ + " 64 Bit..."
+		Message "Uninstalling " + $ProductName$ + " 64 Bit..."
 		for %s% in $ResultList$ do Sub_uninstall_64
 	endif
 endif
 
-Message "Searching installation of " + $PrettyName$ + " 32 Bit..."
-Set $SearchPattern$ = $PrettyName$
+Message "Searching installation of " + $ProductName$ + " 32 Bit..."
+Set $SearchPattern$ = $ProductName$
 ; Parameter: $SearchPattern$ Suchbegriff in Registry
 Sub_search_registry32_uninstall_keys
 ; Rückgabewert: $ResultList$ gefundene Einträge
@@ -29,7 +24,7 @@ Sub_search_registry32_uninstall_keys
 if ( count ($ResultList$) = "0" )
 	comment "No installations of " + $SearchPattern$ + " found in registry. Nothing to do ;-) "
 else
-	Message "Uninstalling " + $PrettyName$ + " 32 Bit..."
+	Message "Uninstalling " + $ProductName$ + " 32 Bit..."
 	for %s% in $ResultList$ do Sub_uninstall_32
 endif
 			
@@ -38,17 +33,13 @@ Set $UninstallProgram$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\%
 ; Anführungsstriche in Registry-Pfad entfernen, da sie stören
 Set $UninstallProgram$ = takeString (1, splitString ( $UninstallProgram$ , '"'))
 Set $InstallDir$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\%s%] InstallLocation")
-if ($INST_architecture$ = "both")
-	Set $ProductName$ = $PrettyName$ + " (64 bit)"			
-else
-	Set $ProductName$ = $PrettyName$
-endif			
+	
 Winbatch_uninstall
 sub_check_exitcode
 			
-if $DesktopIcon$ = "yes"
-	comment "Delete common desktop icon"
-	Linkfolder_uninstall_desktopicon	
+if $DesktopLink$ = "true"
+	comment "Delete common desktop link"
+	Linkfolder_delete_desktoplink	
 endif
 
 comment "include custom post deinstall file"
@@ -59,26 +50,21 @@ if not ($CustomPostDeinstall$ = "none")
 	endif
 endif
 
-;if ($UserDataDir$ = "yes")
+if ($UserDataDir$ = "yes")
 	Registry_uninstall_policies
-;endif
+endif
 
 [Sub_uninstall_32]
 Set $UninstallProgram$ = GetRegistryStringValue32("[" + $RegPathUninstall$ + "\%s%] UninstallString")
 ; Anführungsstriche in Registry-Pfad entfernen, da sie stören
 Set $UninstallProgram$ = takeString (1, splitString ( $UninstallProgram$ , '"'))
 Set $InstallDir$ = GetRegistryStringValue32("[" + $RegPathUninstall$ + "\%s%] InstallLocation")
-if ($INST_architecture$ = "both")
-	Set $ProductName$ = $PrettyName$ + " (32 bit)"
-else
-	Set $ProductName$ = $PrettyName$
-endif			
 Winbatch_uninstall
 sub_check_exitcode
 			
-if $DesktopIcon$ = "yes"
-	comment "Delete common desktop icon"
-	Linkfolder_uninstall_desktopicon	
+if $DesktopLink$ = "true"
+	comment "Delete common desktop link"
+	Linkfolder_delete_desktoplink
 endif
 
 comment "include custom post deinstall file"
@@ -90,9 +76,9 @@ if not ($CustomPostDeinstall$ = "none")
 endif
 
 [Winbatch_uninstall]
-"$UninstallProgram$" /VERYSILENT /NORESTART
+"$UninstallProgram$" $SilentOption$ /NORESTART /nocancel /SUPPRESSMSGBOXES
 
-[Linkfolder_uninstall_desktopicon]
+[Linkfolder_delete_desktoplink]
 set_basefolder common_desktopdirectory
 set_subfolder ""
 delete_element $ProductName$
