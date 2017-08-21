@@ -9,7 +9,7 @@ id: dfn_srware-iron
 name: Browser Iron
 description: Webbrowser auf Basis von Chromium (OS-Teil von Google Chrome) ohne datenschutzrechtlich kritischer Funktionen
 advice: 
-version: 60.0.3150.0
+version: 60.0.3150.1
 priority: 0
 licenseRequired: False
 productClasses: 
@@ -118,6 +118,10 @@ values: ["no", "user", "yes"]
 default: ["user"]
 
 [Changelog]
+dfn_srware-iron (60.0.3150.0-1)
+	* Neue Upstreamversion (Bugfix)
+-- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 21.08.2017
+
 dfn_srware-iron (60.0.3150.0-1)
 	* Neue Upstreamversion
 	* alte uib Copyrights (Überbleibsel von opsi-template) entfernt
