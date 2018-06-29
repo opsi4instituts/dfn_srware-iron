@@ -1,7 +1,6 @@
 [Package]
 version: 1
 depends: 
-incremental: False
 
 [Product]
 type: localboot
@@ -9,7 +8,7 @@ id: dfn_srware-iron
 name: Browser Iron
 description: Webbrowser auf Basis von Chromium (OS-Teil von Google Chrome) ohne datenschutzrechtlich kritischer Funktionen
 advice: 
-version: 64.0.3350.0
+version: 67.0.3500.0
 priority: 0
 licenseRequired: False
 productClasses: 
@@ -118,6 +117,18 @@ values: ["no", "user", "yes"]
 default: ["user"]
 
 [Changelog]
+dfn_srware-iron (67.0.3500.0-1)
+	* Neue Upstreamversion (Bug-/Securityfixes)
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 29.06.2018
+
+dfn_srware-iron (66.0.3450.0-1)
+	* Neue Upstreamversion (Bug-/Securityfixes)
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 22.05.2018
+
+dfn_srware-iron (65.0.3400.0-1)
+	* Neue Upstreamversion (Bug-/Securityfixes)
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 20.03.2018
+
 dfn_srware-iron (64.0.3350.0-1)
 	* Neue Upstreamversion (Bug-/Securityfixes)
  -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 12.02.2018
