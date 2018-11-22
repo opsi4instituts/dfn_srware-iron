@@ -1,30 +1,30 @@
-requiredWinstVersion >= "4.11.4.4"
+requiredWinstVersion >= "4.12.0.16"
 
 DefVar $UninstallProgram$
 DefVar $LogDir$
 DefVar $ProductId$
 DefVar $ProductName$
+DefVar $ProductVersion$
+DefVar $InstalledVersion$
 DefVar $MinimumSpace$
 DefVar $InstallDir$
 DefVar $PathToExe$
-DefVar $SetupFile32$
-DefVar $SetupIniFile32$
-DefVar $SetupFile64$
-DefVar $SetupIniFile64$
+DefVar $SetupFile$
+DefVar $SetupIniFile$
 DefVar $Exe$
 DefVar $ExitCode$
+DefVar $ErrorString$
 DefVar $MSVersion$
-DefVar $RegPathUninstall$
 DefVar $RegPathPolicy$
 DefVar $RegId$
+DefVar $RegBitScope$
 DefVar $RegVal$
-DefVar $INST_architecture$
+DefVar $InstArch$
 DefVar $INST_SystemType$
 DefVar $CustomPostInstall$
 DefVar $CustomPostDeinstall$
 DefVar $DesktopLink$
 DefVar $SilentOption$
-DefVar $SearchPattern$
 DefStringList $ResultList$
 DefVar $UserDataDir$
 DefVar $DefaultBrowser$
@@ -39,7 +39,15 @@ DefStringList $KillProcList$
 DefVar $DisableBing$
 
 Set $INST_SystemType$   = GetSystemType
-Set $INST_architecture$ = GetProductProperty("install_architecture","system specific")
+Set $InstArch$ = GetProductProperty("install_architecture","system specific")
+if ($InstArch$ = "system specific")
+	if ($INST_SystemType$ = "64 Bit System")
+		Set $InstArch$ = "64"
+	else
+		Set $InstArch$ = "32"
+	endif
+endif
+
 Set $MSVersion$	    	= GetMsVersionInfo
 Set $LogDir$ = "%opsiLogDir%"
 
@@ -51,6 +59,7 @@ Set $DefaultSearchProvider$ = GetProductProperty ("default-search-provider","non
 Set $KillProcList$ = GetProductPropertyList ("kill-process","")
 Set $DisableBing$ = GetProductProperty ("disable-bing", "no")
 Set $SilentOption$ = getProductProperty("silent-option", "/silent")
+Set $ProductVersion$ = takestring (0, splitString("%installingProdVersion%", "-"))
 
 ; ---------------------------------------------------------------
 ; - Please edit the following values                             -
@@ -58,21 +67,19 @@ Set $SilentOption$ = getProductProperty("silent-option", "/silent")
 Set $ProductId$		= "srware-iron"
 Set $ProductName$	= "SRWare Iron"
 Set $MinimumSpace$	= "360 MB"
-Set $SetupFile32$	= "srware_iron.exe"
-Set $SetupFile64$	= "srware_iron64.exe"
-Set $SetupIniFile32$ 	= "srware32.ini"
-Set $SetupIniFile64$ 	= "srware64.ini"
+Set $SetupFile$	= "srware_iron" + $InstArch$ + ".exe"
+Set $SetupIniFile$ 	= "srware" + $InstArch$ + ".ini"
 Set $Exe$ 		= "iron.exe"
-Set $RegPathUninstall$	= "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
 Set $RegPathPolicy$	= "HKLM\SOFTWARE\Policies\Chromium"
 ; ----------------------------------------------------------------
 
-include_append "section_sub_check_exitcode.opsiinc"
-include_append "section_sub_search_registry32_uninstall_keys.opsiinc"
-include_append "section_sub_search_registry64_uninstall_keys.opsiinc"
+; exitcode library von UIB (siehe C:\program files(x86)\opsi.org\opsi-client-agent\opsi-winst\lib) mit 'local functions'
+importLib "uib_exitcode.opsiscript::isInnoExitcodeFatal"
+; Library registry search uninstall keys (local functions)
+importLib "func_search_registry_uninstall_keys.opsiinc"
 
-if not ($MSVersion$ = "6.1" OR $MSVersion$ = "10.0")
-	Logwarning "Only tested with windows 7 and 10! Please report to the maintainer successful installation on other windows versions."		
+if not ($MSVersion$ = "10.0")
+	Logwarning "Only tested with windows 10! Please report to the maintainer successful installation on other windows versions."		
 endif
 
 comment "Show product picture"

@@ -2,139 +2,96 @@
 ; common Values for (un)installation
 include_insert "common.opsiinc"
 
-ChangeDirectory "%SCRIPTPATH%"
-
-;Set $MinimumSpace$    = GetProductProperty("minimumspace","272 MB")
 if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
-        LogError "Not enough space on %SystemDrive%, " + $MinimumSpace$ + " on drive %SystemDrive% needed for " + $ProductId$
-        isFatalError "No Space!"
+	LogError "Not enough space on %SystemDrive%, " + $MinimumSpace$ + " on drive %SystemDrive% needed for " + $ProductId$
+	isFatalError
+	; Stop process and set installation status to failed
 else
-        comment "Space OK"
-endif
-if not( FileExists($Setupfile64$) )
-        LogError "Setupfile NOT exists (" + $Setupfile64$ +")"
-        isFatalError "No Setupfile!"
-else
-        comment "Setupfile OK (exists)"
-endif
-
-if FileExists("%ScriptPath%\delsub.opsiscript")
-	comment "Start uninstall sub section"
-   	Sub "%ScriptPath%\delsub.opsiscript"
-endif
-
-for %p% in $KillProcList$ do Sub_kill-process
-
-if ($INST_SystemType$ = "64 Bit System") and (($INST_architecture$ = "system specific") or ($INST_architecture$ = "both") or ($INST_architecture$ = "64 only"))
-	Message "Installing " + $ProductName$ + " 64 Bit..."
-	comment "Start setup program"
-	Winbatch_install_64
-	Sub_check_exitcode
-
-	comment "Test for installation success"
-	Set $SearchPattern$ = $ProductName$
-	; Parameter: $SearchPattern$ Suchbegriff in Registry
-	Sub_search_registry64_uninstall_keys
-	; Rückgabewert: $ResultList$ gefundene Einträge
-
-	Switch count ($ResultList$)
-		Case "0"
-			logError "Fatal: After Installation " + $ProductName$ + " could not be found in " + $RegPathUninstall$
-			isFatalError
-		EndCase
-		Case "1"
-			Set $RegId$ = takeSTring(0, $ResultList$)
-			comment "Get 'InstallLocation' from registry for path to exe"
-			Set $InstallDir$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\" + $RegId$ + "] InstallLocation")
-			Set $PathToExe$ = $InstallDir$ + "\" + $Exe$
-	
-			if $DesktopLink$ = "true"
-				comment "Create common desktop link"
-				Linkfolder_create_desktoplink
-			endif
-
-			comment "include custom post install file"
-			set $CustomPostInstall$ = getProductProperty("custom-post-install","none")
-			if not ($CustomPostInstall$ = "none")
-				if FileExists("%ScriptPath%\custom\" + $CustomPostInstall$)
-					include_insert "%ScriptPath%\custom\" + $CustomPostInstall$
-				endif
-			endif
-		EndCase
-	EndSwitch
-endif
-	
-if ($INST_SystemType$ = "32 Bit System") or (($INST_architecture$ = "both") or ($INST_architecture$ = "32 only"))
-	Message "Installing " + $ProductName$ + " 32 Bit..."
-	comment "Start setup program"
-	Winbatch_install_32
-	Sub_check_exitcode
-
-	comment "Test for installation success"
-	Set $SearchPattern$ = $ProductName$
-	; Parameter: $SearchPattern$ Suchbegriff in Registry
-	Sub_search_registry32_uninstall_keys
-	; Rückgabewert: $ResultList$ gefundene Einträge
-
-	Switch count ($ResultList$)
-		Case "0"
-			logError "Fatal: After Installation " + $ProductName$ + " could not be found in " + $RegPathUninstall$
-			isFatalError
-		EndCase
-		Case "1"
-			Set $RegId$ = takeSTring(0, $ResultList$)
-			comment "Get 'InstallLocation' from registry for path to exe"
-			Set $InstallDir$ = GetRegistryStringValue32("[" + $RegPathUninstall$ + "\" + $RegId$ + "] InstallLocation")
-			Set $PathToExe$ = $InstallDir$ + "\" + $Exe$
-	
-			if $DesktopLink$ = "true"
-				comment "Create common desktop link"
-				Linkfolder_create_desktoplink	
-			endif
-				
-			comment "include custom post install file"
-			set $CustomPostInstall$ = getProductProperty("custom-post-install","none")
-			if not ($CustomPostInstall$ = "none")
-				if FileExists("%ScriptPath%\custom\" + $CustomPostInstall$)
-					include_insert "%ScriptPath%\custom\" + $CustomPostInstall$
-				endif
-			endif
-		EndCase
-	EndSwitch
-endif
-	
-if ($UserDataDir$ = "yes")
-	Registry_install_user-data-dir
-endif
-
-if not ($DefaultBrowser$ = "user")
-	if ($DefaultBrowser$ = "yes")
-		Set $DefaultBrowser$ = "1"
-	else
-		Set $DefaultBrowser$ = "0"
+	if FileExists("%ScriptPath%\delsub.opsiscript")
+		comment "Start uninstall sub section"
+		Sub "%ScriptPath%\delsub.opsiscript"
 	endif
-	Registry_install_defaultbrowser
-endif
 
-;ExtensionsForceList
-Set $Counter$ = "1"
-for %e% in $ExtForceList$ do Sub_ext-install-force
+	Message "Installing %installingProdName% (%installingProdVersion%) " + $InstArch$ + " Bit..."	
 
-; bei neuem Tab soll kein extra Suchfeld angezeigt werden, da immer "Bing" als Suchmaschine verwendet wird (verwirrend)
-; http://www.srware.net/forum/viewtopic.php?f=18&t=14250&p=35580
-; http://www.srware.net/downloads/NewTabWithoutSearch.zip 
-; Achtung 'resource.pak' ist versionsabhängig, sprich muss (regelmäßig?) erneuert werden
-if ($DisableBing$ = "yes")
-	comment "Replace file resources.pak"
-	Files_install_resources
-endif
+	for %p% in $KillProcList$ do Sub_kill-process
 
-;DefaultSearchProvider (DSP)
-if not ($DefaultSearchProvider$ = "none")
-	Set $DSPShortName$ = takeString(0,splitString($DefaultSearchProvider$, "|"))
-	Set $DSPLongName$ = takeString(1,splitString($DefaultSearchProvider$, "|"))
-	Set $DSPUrl$ = takeString(2,splitString($DefaultSearchProvider$, "|"))
-	Registry_install_default-search-provider
+	comment "Start setup program"
+	Winbatch_install
+	Set $ExitCode$ = getLastExitCode
+	if stringToBool(isInnoExitcodeFatal($ExitCode$, "True", $ErrorString$))
+		isFatalError
+    endif
+    ; Ergebnis ist StringList (mehrere Einträge möglich);
+    ; in einer Zeile werden drei Ergebnisse mit "|" abgetrennt geliefert: Registrykey (mit Pfad) | Bereich Registry (kann direkt getRegistryValue übergeben werden | DisplayName
+    ; z.B. HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Test64|64bit|Test Registry Entry64
+    Set $ResultList$ = SearchRegistryUninstallKeys($ProductName$)
+
+	if ( count ($ResultList$) = "0" )
+		logError "Fatal: After Installation '" + $ProductName$ + "' could not be found in registry"
+		isFatalError
+	else
+		Set $RegId$ = takeString (0,splitString(takeString(0,$ResultList$), '|'))
+		Set $RegBitScope$ = takeString (1,splitString(takeString(0,$ResultList$), '|'))
+
+		comment "Check version"
+		Set $InstalledVersion$ = GetRegistryValue($RegId$, "DisplayVersion", $RegBitScope$)
+		if not ($InstalledVersion$ = $ProductVersion$)
+			LogError "Wrong version number found, something went wrong."
+			isFatalError
+		endif
+
+		comment "Get 'InstallLocation' from registry for path to exe"
+		Set $InstallDir$ = takestring (0, splitString(GetRegistryValue($RegId$, "InstallLocation", $RegBitScope$) , "," ) )
+		Set $PathToExe$ = $InstallDir$ + $Exe$
+
+		if ($UserDataDir$ = "yes")
+			Registry_install_user-data-dir
+		endif
+
+		if not ($DefaultBrowser$ = "user")
+			if ($DefaultBrowser$ = "yes")
+				Set $DefaultBrowser$ = "1"
+			else
+				Set $DefaultBrowser$ = "0"
+			endif
+			Registry_install_defaultbrowser
+		endif
+
+		;ExtensionsForceList
+		Set $Counter$ = "1"
+		for %e% in $ExtForceList$ do Sub_ext-install-force
+
+		; bei neuem Tab soll kein extra Suchfeld angezeigt werden, da immer "Bing" als Suchmaschine verwendet wird (verwirrend)
+		; http://www.srware.net/forum/viewtopic.php?f=18&t=14250&p=35580
+		; http://www.srware.net/downloads/NewTabWithoutSearch.zip 
+		; Achtung 'resource.pak' ist versionsabhängig, sprich muss (regelmäßig?) erneuert werden
+		if ($DisableBing$ = "yes")
+			comment "Replace file resources.pak"
+			Files_install_resources
+		endif
+
+		;DefaultSearchProvider (DSP)
+		if not ($DefaultSearchProvider$ = "none")
+			Set $DSPShortName$ = takeString(0,splitString($DefaultSearchProvider$, "|"))
+			Set $DSPLongName$ = takeString(1,splitString($DefaultSearchProvider$, "|"))
+			Set $DSPUrl$ = takeString(2,splitString($DefaultSearchProvider$, "|"))
+			Registry_install_default-search-provider
+		endif
+
+		if $DesktopLink$ = "true"
+			comment "Create common desktop link"
+			Linkfolder_create_desktoplink
+		endif
+
+		comment "include custom post install file"
+		set $CustomPostInstall$ = getProductProperty("custom-post-install","none")
+		if not ($CustomPostInstall$ = "none")
+			if FileExists("%ScriptPath%\custom\" + $CustomPostInstall$)
+				include_insert "%ScriptPath%\custom\" + $CustomPostInstall$
+			endif
+		endif
+	endif
 endif
 
 [Sub_kill-process]
@@ -153,17 +110,11 @@ if not ("%e%" = "none")
 	Set $Counter$ = calculate("1+")
 endif
 
-[Winbatch_install_32]
+[Winbatch_install]
 ; http://unattended.sourceforge.net/InnoSetup_Switches_ExitCodes.html
 ; You may create setup answer file by: setup.exe /SAVEINF="filename"
 ; You may use an answer file by the parameter /LOADINF="filename"
-"%ScriptPath%\$Setupfile32$" /LOADINF="%ScriptPath%\$SetupIniFile32$" $SilentOption$ /norestart /nocancel /SUPPRESSMSGBOXES
-
-[Winbatch_install_64]
-; http://unattended.sourceforge.net/InnoSetup_Switches_ExitCodes.html
-; You may create setup answer file by: setup.exe /SAVEINF="filename"
-; You may use an answer file by the parameter /LOADINF="filename"
-"%ScriptPath%\$Setupfile64$" /LOADINF="%ScriptPath%\$SetupIniFile64$" $SilentOption$ /norestart /nocancel /SUPPRESSMSGBOXES
+"%ScriptPath%\$Setupfile$" /LOADINF="%ScriptPath%\$SetupIniFile$" $SilentOption$ /norestart /nocancel /SUPPRESSMSGBOXES
 
 [Registry_install_user-data-dir]
 openkey [$RegPathPolicy$]

@@ -8,7 +8,7 @@ id: dfn_srware-iron
 name: Browser Iron
 description: Webbrowser auf Basis von Chromium (OS-Teil von Google Chrome) ohne datenschutzrechtlich kritischer Funktionen
 advice: 
-version: 67.0.3500.0
+version: 70.0.3650.0
 priority: 0
 licenseRequired: False
 productClasses: 
@@ -25,8 +25,8 @@ type: unicode
 name: install_architecture
 multivalue: False
 editable: False
-description: Betriebssystem-Architektur 32/64 Bit
-values: ["32 only", "64 only", "both", "system specific"]
+description: Which architecture (32/64 bit) has to be installed
+values: ["32", "64", "system specific"]
 default: ["system specific"]
 
 [ProductProperty]
@@ -117,6 +117,22 @@ values: ["no", "user", "yes"]
 default: ["user"]
 
 [Changelog]
+dfn_srware-iron (70.0.3650.0-1)
+	* Neue Upstreamversion (Bug-/Securityfixes)
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 22.11.2018
+
+dfn_srware-iron (69.0.3600.0-1)
+	* Neue Upstreamversion (Bug-/Securityfixes)
+	* neues o4i-Logo
+	* neue Registrysuche (https://github.com/opsi4instituts/lib, winst-Version 4.12.0.16 Voraussetzung)
+	* Verwendung uib_exitcode (local function)
+	* ProductProperty 'install_architecture' korrigiert
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 10.10.2018
+
+dfn_srware-iron (68.0.3550.0-1)
+	* Neue Upstreamversion (Bug-/Securityfixes)
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 24.08.2018
+
 dfn_srware-iron (67.0.3500.0-1)
 	* Neue Upstreamversion (Bug-/Securityfixes)
  -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 29.06.2018

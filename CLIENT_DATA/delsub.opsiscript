@@ -1,42 +1,43 @@
-; Suche macht nur auf 64-Bit-System Sinn
-if ($INST_SystemType$ = "64 Bit System") and (($INST_architecture$ = "system specific") or ($INST_architecture$ = "both") or ($INST_architecture$ = "64 only"))
+; Ergebnis ist StringList (mehrere Einträge möglich);
+; in einer Zeile werden drei Ergebnisse mit "|" abgetrennt geliefert: Registrykey (mit Pfad) | Bereich Registry (kann direkt getRegistryValue übergeben werden | DisplayName
+; z.B. HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Test64|64bit|Test Registry Entry64
+Set $ResultList$ = SearchRegistryUninstallKeys($ProductName$)
 
-	Message "Searching installation of " + $ProductName$ + " 64 Bit..."
-	Set $SearchPattern$ = $ProductName$
-	; Parameter: $SearchPattern$ Suchbegriff in Registry
-	Sub_search_registry64_uninstall_keys
-	; Rückgabewert: $ResultList$ gefundene Einträge
-
-	if ( count ($ResultList$) = "0" )
-		comment "No installations of " + $SearchPattern$ + " found in registry. Nothing to do ;-) "
-	else
-		Message "Uninstalling " + $ProductName$ + " 64 Bit..."
-		for %s% in $ResultList$ do Sub_uninstall_64
-	endif
-endif
-
-Message "Searching installation of " + $ProductName$ + " 32 Bit..."
-Set $SearchPattern$ = $ProductName$
-; Parameter: $SearchPattern$ Suchbegriff in Registry
-Sub_search_registry32_uninstall_keys
-; Rückgabewert: $ResultList$ gefundene Einträge
-
-if ( count ($ResultList$) = "0" )
-	comment "No installations of " + $SearchPattern$ + " found in registry. Nothing to do ;-) "
+if ( count ( $ResultList$ ) = "0" )
+	comment "No installations of " + $ProductName$ + " found in registry. Nothing to do"
 else
-	Message "Uninstalling " + $ProductName$ + " 32 Bit..."
-	for %s% in $ResultList$ do Sub_uninstall_32
+	comment "Found at least one installation of " + $ProductName$ + " in registry, try to deinstall"
+	for %s% in $ResultList$ do Sub_uninstall
 endif
-			
-[Sub_uninstall_64]
-Set $UninstallProgram$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\%s%] UninstallString")
-; Anführungsstriche in Registry-Pfad entfernen, da sie stören
-Set $UninstallProgram$ = takeString (1, splitString ( $UninstallProgram$ , '"'))
-Set $InstallDir$ = GetRegistryStringValue64("[" + $RegPathUninstall$ + "\%s%] InstallLocation")
-	
+
+[Sub_uninstall]
+Set $RegId$ = takeString (0,splitString(takeString(0,$ResultList$), '|'))
+Set $RegBitScope$ = takeString (1,splitString(takeString(0,$ResultList$), '|'))
+
+Message "Uninstalling " + $ProductName$ + " " + $RegBitScope$ + " ..."
+
+Set $UninstallProgram$ = GetRegistryValue($RegId$, "UninstallString", $RegBitScope$)
+; Der Registry-Wert UninstallProgramm enthält selbst am Anfang und Ende Anführungszeichen, die nachfolgend zu Problemen führen
+; mit takeString und splitString können die eliminiert werden
+Set $UninstallProgram$ = takeString (1, splitString ( $UninstallProgram$ , '"'))	
+if not (FileExists($UninstallProgram$))
+	LogError "Suspicious! Found entry of installer in Registry, but $UninstallProgramm$ does not exist!?"
+	isFatalError
+endif
+
+Set $InstallDir$ = GetRegistryValue($RegId$, "InstallLocation", $RegBitScope$)
+
 Winbatch_uninstall
-sub_check_exitcode
-			
+Set $ExitCode$ = getLastExitCode
+if stringToBool(isInnoExitcodeFatal($ExitCode$, "True", $ErrorString$))
+	isFatalError
+endif
+
+;löscht vielleicht vorhandene Überbleibsel des Programmes
+if FileExists($InstallDir$)
+	Files_uninstall
+endif
+
 if $DesktopLink$ = "true"
 	comment "Delete common desktop link"
 	Linkfolder_delete_desktoplink	
@@ -52,27 +53,6 @@ endif
 
 if ($UserDataDir$ = "yes")
 	Registry_uninstall_policies
-endif
-
-[Sub_uninstall_32]
-Set $UninstallProgram$ = GetRegistryStringValue32("[" + $RegPathUninstall$ + "\%s%] UninstallString")
-; Anführungsstriche in Registry-Pfad entfernen, da sie stören
-Set $UninstallProgram$ = takeString (1, splitString ( $UninstallProgram$ , '"'))
-Set $InstallDir$ = GetRegistryStringValue32("[" + $RegPathUninstall$ + "\%s%] InstallLocation")
-Winbatch_uninstall
-sub_check_exitcode
-			
-if $DesktopLink$ = "true"
-	comment "Delete common desktop link"
-	Linkfolder_delete_desktoplink
-endif
-
-comment "include custom post deinstall file"
-set $CustomPostDeinstall$ = getProductProperty("custom-post-deinstall","none")
-if not ($CustomPostDeinstall$ = "none")
-	if FileExists("%ScriptPath%\custom\" + $CustomPostDeinstall$)
-		include_insert "%ScriptPath%\custom\" + $CustomPostDeinstall$
-	endif
 endif
 
 [Winbatch_uninstall]
