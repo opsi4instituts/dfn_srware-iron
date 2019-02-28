@@ -29,7 +29,7 @@ Set $InstallDir$ = GetRegistryValue($RegId$, "InstallLocation", $RegBitScope$)
 
 Winbatch_uninstall
 Set $ExitCode$ = getLastExitCode
-if stringToBool(isInnoExitcodeFatal($ExitCode$, "True", $ErrorString$))
+if stringToBool(isInnoExitcodeFatal($ExitCode$, "False", $ErrorString$))
 	isFatalError
 endif
 

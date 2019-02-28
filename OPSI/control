@@ -8,7 +8,7 @@ id: dfn_srware-iron
 name: Browser Iron
 description: Webbrowser auf Basis von Chromium (OS-Teil von Google Chrome) ohne datenschutzrechtlich kritischer Funktionen
 advice: 
-version: 71.0.3700.0
+version: 72.0.3750.0
 priority: 0
 licenseRequired: False
 productClasses: 
@@ -117,6 +117,12 @@ values: ["no", "user", "yes"]
 default: ["user"]
 
 [Changelog]
+dfn_srware-iron (72.0.3750.0-1)
+	* neue Upstreamversion
+	* Fix für Warnung "empty loop" bei $KillProcList$
+	* Änderung Funktionsaufruf "isInnoExitcodeFatal", kein Reboot (False)
+ -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 28.02.2019
+
 dfn_srware-iron (71.0.3700.0-1)
 	* neue Upstreamversion
  -- Thomas Besser (archIT/KIT) <thomas.besser@kit.edu>, 21.01.2019

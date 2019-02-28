@@ -14,12 +14,14 @@ else
 
 	Message "Installing %installingProdName% (%installingProdVersion%) " + $InstArch$ + " Bit..."	
 
-	for %p% in $KillProcList$ do Sub_kill-process
+	if not (count($KillProcList$) = "0")
+		for %p% in $KillProcList$ do Sub_kill-process
+	endif
 
 	comment "Start setup program"
 	Winbatch_install
 	Set $ExitCode$ = getLastExitCode
-	if stringToBool(isInnoExitcodeFatal($ExitCode$, "True", $ErrorString$))
+	if stringToBool(isInnoExitcodeFatal($ExitCode$, "False", $ErrorString$))
 		isFatalError
     endif
     ; Ergebnis ist StringList (mehrere Einträge möglich);
